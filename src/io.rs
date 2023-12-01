@@ -68,6 +68,9 @@ mod tests {
     #[test]
     fn test_source_from_path() {
         let source = Source::try_from("Cargo.toml").unwrap();
-        assert_eq!(source, Source::File(PathBuf::from("Cargo.toml").canonicalize().unwrap()));
+        assert_eq!(
+            source,
+            Source::File(PathBuf::from("Cargo.toml").canonicalize().unwrap())
+        );
     }
 }
