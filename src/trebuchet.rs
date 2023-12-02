@@ -6,7 +6,6 @@ struct CalibrationValueReader {
 }
 
 impl CalibrationValueReader {
-
     fn try_join_two_digits(first: Option<u8>, second: Option<u8>) -> Result<i32, Box<dyn Error>> {
         match (first, second) {
             (Some(first), Some(second)) => {
@@ -18,8 +17,15 @@ impl CalibrationValueReader {
     }
 
     fn recover_from_str(&self, s: &str) -> Result<i32, Box<dyn Error>> {
-        let first_digit = s.chars().find(|c| c.is_ascii_digit()).map(|c| c.to_digit(10).unwrap() as u8);
-        let second_digit = s.chars().rev().find(|c| c.is_ascii_digit()).map(|c| c.to_digit(10).unwrap() as u8);
+        let first_digit = s
+            .chars()
+            .find(|c| c.is_ascii_digit())
+            .map(|c| c.to_digit(10).unwrap() as u8);
+        let second_digit = s
+            .chars()
+            .rev()
+            .find(|c| c.is_ascii_digit())
+            .map(|c| c.to_digit(10).unwrap() as u8);
         Self::try_join_two_digits(first_digit, second_digit)
     }
 
@@ -80,7 +86,6 @@ impl CalibrationValueReader {
     }
 }
 
-
 impl Default for CalibrationValueReader {
     fn default() -> Self {
         Self {
@@ -126,7 +131,7 @@ pub mod test {
     use super::*;
 
     fn recover_from_str(value: &str) -> Result<i32, Box<dyn Error>> {
-       let reader = CalibrationValueReader::default();
+        let reader = CalibrationValueReader::default();
         reader.recover_from_str(value)
     }
 
