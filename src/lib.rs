@@ -31,3 +31,15 @@ impl Display for Solution {
         write!(f, "part 1: {}\npart 2: {}", self.part1, self.part2)
     }
 }
+
+pub trait Solver {
+    fn solve(&self, input: &io::Source) -> Result<Solution, Box<dyn std::error::Error>>;
+}
+
+impl dyn Solver {
+    pub fn run(&self, input: &io::Source) -> Result<(), Box<dyn std::error::Error>> {
+        let solution = self.solve(input)?;
+        println!("{}", solution);
+        Ok(())
+    }
+}

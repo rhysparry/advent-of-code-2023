@@ -1,4 +1,6 @@
+use advent_of_code_2023::days::{day1, day2};
 use advent_of_code_2023::io::Source;
+use advent_of_code_2023::Solver;
 use clap::Parser;
 use log::{info, Level};
 use std::ops::RangeInclusive;
@@ -52,10 +54,13 @@ fn day_in_range(value: &str) -> Result<u8, String> {
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let cli = Cli::parse();
     simple_logger::init_with_level(cli.log_level)?;
+    let run = |solver: Box<dyn Solver>| -> Result<(), Box<dyn std::error::Error>> {
+        solver.run(&cli.input)
+    };
     match cli.day {
         0 => print(&cli.input),
-        1 => advent_of_code_2023::days::day1::run(&cli.input),
-        2 => advent_of_code_2023::days::day2::run(&cli.input),
+        1 => run(Box::<day1::CalibrationSolver>::default()),
+        2 => run(Box::<day2::GameSolver>::default()),
         _ => Err("Invalid day".into()),
     }
 }
