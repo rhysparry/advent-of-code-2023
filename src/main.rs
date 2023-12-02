@@ -31,7 +31,7 @@ fn print(input: &Source) -> Result<(), Box<dyn std::error::Error>> {
     Ok(())
 }
 
-const DAY_RANGE: RangeInclusive<usize> = 0..=1;
+const DAY_RANGE: RangeInclusive<usize> = 0..=2;
 
 fn day_in_range(value: &str) -> Result<u8, String> {
     let day: usize = value
@@ -55,6 +55,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     match cli.day {
         0 => print(&cli.input),
         1 => advent_of_code_2023::days::day1::run(&cli.input),
+        2 => advent_of_code_2023::days::day2::run(&cli.input),
         _ => Err("Invalid day".into()),
     }
 }

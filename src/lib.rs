@@ -6,6 +6,8 @@ pub mod io;
 pub mod days;
 pub mod trebuchet;
 
+pub mod snow_island;
+
 pub struct Solution {
     part1: i32,
     part2: i32,
