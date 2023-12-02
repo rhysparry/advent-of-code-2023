@@ -33,7 +33,7 @@ mod tests {
     fn test_solve_part_2() -> Result<(), Box<dyn Error>> {
         let input = Source::try_from("inputs/day-1.txt")?;
         let result = CalibrationSolver::default().solve(&input)?;
-        assert_eq!(result.part2(), 55686);
+        assert_eq!(result.part2(), Some(55686));
         Ok(())
     }
 }

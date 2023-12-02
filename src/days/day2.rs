@@ -70,7 +70,7 @@ mod tests {
     fn test_solve_part_2() -> Result<(), Box<dyn Error>> {
         let input = Source::try_from("inputs/day-2.txt")?;
         let result = GameSolver::default().solve(&input)?;
-        assert_eq!(result.part2(), 79315);
+        assert_eq!(result.part2(), Some(79315));
         Ok(())
     }
 }
