@@ -34,10 +34,8 @@ impl Display for Solution {
 
 pub trait Solver {
     fn solve(&self, input: &io::Source) -> Result<Solution, Box<dyn std::error::Error>>;
-}
 
-impl dyn Solver {
-    pub fn run(&self, input: &io::Source) -> Result<(), Box<dyn std::error::Error>> {
+    fn run(&self, input: &io::Source) -> Result<(), Box<dyn std::error::Error>> {
         let solution = self.solve(input)?;
         println!("{}", solution);
         Ok(())

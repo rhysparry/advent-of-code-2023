@@ -54,13 +54,10 @@ fn day_in_range(value: &str) -> Result<u8, String> {
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let cli = Cli::parse();
     simple_logger::init_with_level(cli.log_level)?;
-    let run = |solver: Box<dyn Solver>| -> Result<(), Box<dyn std::error::Error>> {
-        solver.run(&cli.input)
-    };
     match cli.day {
         0 => print(&cli.input),
-        1 => run(Box::<day1::CalibrationSolver>::default()),
-        2 => run(Box::<day2::GameSolver>::default()),
+        1 => day1::CalibrationSolver.run(&cli.input),
+        2 => day2::GameSolver::default().run(&cli.input),
         _ => Err("Invalid day".into()),
     }
 }
