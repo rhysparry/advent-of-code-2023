@@ -1,3 +1,4 @@
+use std::cmp::max;
 use std::fmt;
 use std::fmt::{Display, Formatter};
 use std::str::FromStr;
@@ -116,26 +117,22 @@ impl GameBag {
         Self { blue, red, green }
     }
 
+    pub fn empty() -> Self {
+        Self::new(0, 0, 0)
+    }
+
+    fn to_bag_satisfying_result(self, result: &GrabResult) -> Self {
+        Self {
+            blue: max(self.blue, result.blue),
+            red: max(self.red, result.red),
+            green: max(self.green, result.green),
+        }
+    }
+
     pub fn minimum_for(game: &Game) -> GameBag {
-        let blue = game
-            .results
-            .iter()
-            .map(|result| result.blue)
-            .max()
-            .unwrap_or(0);
-        let red = game
-            .results
-            .iter()
-            .map(|result| result.red)
-            .max()
-            .unwrap_or(0);
-        let green = game
-            .results
-            .iter()
-            .map(|result| result.green)
-            .max()
-            .unwrap_or(0);
-        GameBag::new(blue, red, green)
+        game.results.iter().fold(GameBag::empty(), |bag, result| {
+            bag.to_bag_satisfying_result(result)
+        })
     }
 
     pub fn is_outcome_possible(&self, outcome: &GrabResult) -> bool {
