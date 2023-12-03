@@ -12,7 +12,7 @@ pub struct GameSolver {
 impl Default for GameSolver {
     fn default() -> Self {
         GameSolver {
-            bag: GameBag::new(14, 12, 13),
+            bag: GameBag::new(12, 13, 14),
         }
     }
 }

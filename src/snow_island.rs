@@ -107,14 +107,14 @@ impl FromStr for GrabResult {
 
 #[derive(Debug)]
 pub struct GameBag {
-    blue: u32,
     red: u32,
     green: u32,
+    blue: u32,
 }
 
 impl GameBag {
-    pub fn new(blue: u32, red: u32, green: u32) -> Self {
-        Self { blue, red, green }
+    pub fn new(red: u32, green: u32, blue: u32) -> Self {
+        Self { red, green, blue }
     }
 
     pub fn empty() -> Self {
@@ -123,9 +123,9 @@ impl GameBag {
 
     fn to_bag_satisfying_result(self, result: &GrabResult) -> Self {
         Self {
-            blue: max(self.blue, result.blue),
             red: max(self.red, result.red),
             green: max(self.green, result.green),
+            blue: max(self.blue, result.blue),
         }
     }
 
@@ -201,7 +201,7 @@ mod tests {
             .parse::<Game>()
             .unwrap();
 
-        let bag = GameBag::new(14, 12, 13);
+        let bag = GameBag::new(12, 13, 14);
         assert!(bag.is_game_possible(&game_1));
         assert!(bag.is_game_possible(&game_2));
         assert!(!bag.is_game_possible(&game_3));
