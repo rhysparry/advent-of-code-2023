@@ -1,4 +1,4 @@
-use advent_of_code_2023::days::{day1, day2};
+use advent_of_code_2023::days::{day1, day2, day3};
 use advent_of_code_2023::io::Source;
 use advent_of_code_2023::Solver;
 use clap::Parser;
@@ -33,7 +33,7 @@ fn print(input: &Source) -> Result<(), Box<dyn std::error::Error>> {
     Ok(())
 }
 
-const DAY_RANGE: RangeInclusive<usize> = 0..=2;
+const DAY_RANGE: RangeInclusive<usize> = 0..=3;
 
 fn day_in_range(value: &str) -> Result<u8, String> {
     let day: usize = value
@@ -58,6 +58,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         0 => print(&cli.input),
         1 => day1::CalibrationSolver.run(&cli.input),
         2 => day2::GameSolver::default().run(&cli.input),
+        3 => day3::GearRatioSolver.run(&cli.input),
         _ => Err("Invalid day".into()),
     }
 }

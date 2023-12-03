@@ -1,5 +1,6 @@
 use std::fmt;
 use std::fmt::{Display, Formatter};
+use std::ops::Range;
 
 pub mod io;
 
@@ -8,6 +9,8 @@ pub mod trebuchet;
 
 pub mod snow_island;
 
+pub mod gondola_lift;
+
 pub struct Solution {
     part1: i32,
     part2: Option<i32>,
@@ -15,7 +18,14 @@ pub struct Solution {
 
 impl Solution {
     pub fn new(part1: i32, part2: i32) -> Self {
-        Solution { part1, part2: Some(part2) }
+        Solution {
+            part1,
+            part2: Some(part2),
+        }
+    }
+
+    pub fn partial(part1: i32) -> Self {
+        Solution { part1, part2: None }
     }
 
     pub fn part1(&self) -> i32 {
@@ -44,4 +54,11 @@ pub trait Solver {
         println!("{}", solution);
         Ok(())
     }
+}
+
+pub fn ranges_overlap<T>(a: &Range<T>, b: &Range<T>) -> bool
+where
+    T: PartialOrd,
+{
+    a.start < b.end && b.start < a.end
 }
