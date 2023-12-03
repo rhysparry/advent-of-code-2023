@@ -121,7 +121,7 @@ impl GameBag {
         Self::new(0, 0, 0)
     }
 
-    fn to_bag_satisfying_result(self, result: &GrabResult) -> Self {
+    fn into_bag_satisfying_result(self, result: &GrabResult) -> Self {
         Self {
             red: max(self.red, result.red),
             green: max(self.green, result.green),
@@ -131,7 +131,7 @@ impl GameBag {
 
     pub fn minimum_for(game: &Game) -> GameBag {
         game.results.iter().fold(GameBag::empty(), |bag, result| {
-            bag.to_bag_satisfying_result(result)
+            bag.into_bag_satisfying_result(result)
         })
     }
 
