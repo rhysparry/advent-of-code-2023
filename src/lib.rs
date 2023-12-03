@@ -11,6 +11,8 @@ pub mod snow_island;
 
 pub mod gondola_lift;
 
+pub mod span;
+
 pub struct Solution {
     part1: i32,
     part2: Option<i32>,

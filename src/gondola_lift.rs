@@ -1,4 +1,5 @@
 use crate::ranges_overlap;
+use crate::span::Span;
 use std::fmt::{Display, Formatter};
 use std::ops::Range;
 use std::str::FromStr;
@@ -26,6 +27,13 @@ enum Component {
     Space,
 }
 
+#[derive(Debug, PartialEq)]
+pub struct PositionedComponent {
+    component: Component,
+    line: usize,
+    span: Range<usize>,
+}
+
 impl FromStr for EngineSchematic {
     type Err = &'static str;
 
@@ -51,7 +59,110 @@ impl ActivePartNumber {
     }
 }
 
+#[derive(Debug, PartialEq)]
+pub struct Gear {
+    line: usize,
+    span: Range<usize>,
+    first_gear: ActivePartNumber,
+    second_gear: ActivePartNumber,
+}
+
+impl Gear {
+    pub fn gear_ratio(&self) -> i32 {
+        self.first_gear.part_number() * self.second_gear.part_number()
+    }
+}
+
 impl EngineSchematic {
+    fn get_symbols(&self) -> Vec<PositionedComponent> {
+        let mut symbols = Vec::new();
+        for (line, schematic_line) in self.lines.iter().enumerate() {
+            for component in &schematic_line.components {
+                if let Component::Symbol(symbol) = &component.component {
+                    symbols.push(PositionedComponent {
+                        component: Component::Symbol(*symbol),
+                        line,
+                        span: component.span.clone(),
+                    });
+                }
+            }
+        }
+
+        symbols
+    }
+
+    fn get_symbols_matching(&self, symbol: char) -> Vec<PositionedComponent> {
+        self.get_symbols()
+            .into_iter()
+            .filter(|c| c.component == Component::Symbol(symbol))
+            .collect()
+    }
+
+    pub fn get_gears(&self) -> Vec<Gear> {
+        self.get_symbols_matching('*')
+            .into_iter()
+            .filter_map(|g| self.get_gear(g))
+            .collect()
+    }
+
+    fn get_gear(&self, component: PositionedComponent) -> Option<Gear> {
+        match component.component {
+            Component::Symbol('*') => {
+                let mut part_numbers = self.get_adjacent_part_numbers(&component);
+                if part_numbers.len() == 2 {
+                    Some(Gear {
+                        line: component.line,
+                        span: component.span,
+                        first_gear: part_numbers.pop().unwrap(),
+                        second_gear: part_numbers.pop().unwrap(),
+                    })
+                } else {
+                    None
+                }
+            }
+            _ => None,
+        }
+    }
+
+    fn get_adjacent_part_numbers(&self, component: &PositionedComponent) -> Vec<ActivePartNumber> {
+        let mut adjacent_part_numbers = Vec::new();
+        let mut append_part_numbers = |line: usize, components: Vec<&SchematicComponent>| {
+            components
+                .into_iter()
+                .filter_map(|c| {
+                    if let Component::PartNumber(part_number) = &c.component {
+                        Some(ActivePartNumber {
+                            part_number: *part_number,
+                            line,
+                            span: c.span.clone(),
+                        })
+                    } else {
+                        None
+                    }
+                })
+                .for_each(|p| adjacent_part_numbers.push(p));
+        };
+        if component.line > 0 {
+            // Check the line above
+            if let Some(line_above) = self.lines.get(component.line - 1) {
+                let components = line_above.get_adjacent_or_overlapping_components(&component.span);
+                append_part_numbers(component.line - 1, components);
+            }
+        }
+
+        // Check the current line
+        let components = self.lines[component.line].get_adjacent_components(&component.span);
+        append_part_numbers(component.line, components);
+
+        // Check the next line
+        if let Some(line_below) = self.lines.get(component.line + 1) {
+            let components = line_below.get_adjacent_or_overlapping_components(&component.span);
+            append_part_numbers(component.line + 1, components);
+        }
+
+        adjacent_part_numbers
+    }
+
     pub fn get_active_part_numbers(&self) -> Vec<ActivePartNumber> {
         let mut active_part_numbers = Vec::new();
         for (line, schematic_line) in self.lines.iter().enumerate() {
@@ -127,6 +238,23 @@ impl SchematicLine {
                 false
             }
         })
+    }
+
+    fn get_adjacent_components(&self, range: &Range<usize>) -> Vec<&SchematicComponent> {
+        self.components
+            .iter()
+            .filter(|c| c.span.is_adjacent_to(range))
+            .collect()
+    }
+
+    fn get_adjacent_or_overlapping_components(
+        &self,
+        range: &Range<usize>,
+    ) -> Vec<&SchematicComponent> {
+        self.components
+            .iter()
+            .filter(|c| c.span.overlaps_or_is_adjacent_to(range))
+            .collect()
     }
 }
 
@@ -263,5 +391,17 @@ mod tests {
             .map(|p| p.part_number)
             .sum::<i32>();
         assert_eq!(sum_part_numbers, 4361);
+    }
+
+    #[test]
+    fn test_find_engine_schematic_gears() {
+        let input = "467..114..\n...*......\n..35..633.\n......#...\n617*......\n.....+.58.\n..592.....\n......755.\n...$.*....\n.664.598..";
+        let schematic = input.parse::<EngineSchematic>().unwrap();
+        let gears = schematic.get_gears();
+        assert_eq!(gears.len(), 2);
+        assert_eq!(gears[0].line, 1);
+        assert_eq!(gears[0].gear_ratio(), 16345);
+        assert_eq!(gears[1].line, 8);
+        assert_eq!(gears[1].gear_ratio(), 451490);
     }
 }
