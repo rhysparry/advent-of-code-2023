@@ -12,8 +12,8 @@ format:
 test:
     cargo test
 
-run day=("0"):
-    cargo run -- --input ./inputs/day-{{day}}.txt {{day}}
+run day=("0") level=("info"):
+    cargo run -- --log-level {{level}} --input ./inputs/day-{{day}}.txt {{day}}
 
 help:
     cargo run -- --help
