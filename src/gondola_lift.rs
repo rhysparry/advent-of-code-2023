@@ -1,4 +1,3 @@
-use crate::ranges_overlap;
 use crate::span::Span;
 use std::fmt::{Display, Formatter};
 use std::ops::Range;
@@ -240,7 +239,7 @@ impl SchematicLine {
     pub fn has_symbol_overlapping_range(&self, range: &Range<usize>) -> bool {
         self.components.iter().any(|c| {
             if let Component::Symbol(_) = c.component {
-                ranges_overlap(range, &c.span)
+                range.overlaps(&c.span)
             } else {
                 false
             }

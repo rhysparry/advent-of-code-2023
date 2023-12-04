@@ -1,6 +1,5 @@
 use std::fmt;
 use std::fmt::{Display, Formatter};
-use std::ops::Range;
 
 pub mod io;
 
@@ -57,11 +56,4 @@ pub trait Solver {
         println!("{}", solution);
         Ok(())
     }
-}
-
-pub fn ranges_overlap<T>(a: &Range<T>, b: &Range<T>) -> bool
-where
-    T: PartialOrd,
-{
-    a.start < b.end && b.start < a.end
 }
