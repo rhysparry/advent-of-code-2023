@@ -1,22 +1,31 @@
-use std::error::Error;
+use thiserror::Error;
 
 #[derive(Debug)]
 struct CalibrationValueReader {
     spelled_out_digits: Vec<(&'static str, u8)>,
 }
 
+#[derive(Debug, Error, PartialEq)]
+pub enum CalibrationValueError {
+    #[error("No digits found")]
+    NoDigitsFound,
+}
+
 impl CalibrationValueReader {
-    fn try_join_two_digits(first: Option<u8>, second: Option<u8>) -> Result<i32, Box<dyn Error>> {
+    fn try_join_two_digits(
+        first: Option<u8>,
+        second: Option<u8>,
+    ) -> Result<i32, CalibrationValueError> {
         match (first, second) {
             (Some(first), Some(second)) => {
                 let value = (first * 10 + second) as i32;
                 Ok(value)
             }
-            _ => Err("No digits found".into()),
+            _ => Err(CalibrationValueError::NoDigitsFound),
         }
     }
 
-    fn recover_from_str(&self, s: &str) -> Result<i32, Box<dyn Error>> {
+    fn recover_from_str(&self, s: &str) -> Result<i32, CalibrationValueError> {
         let first_digit = s
             .chars()
             .find(|c| c.is_ascii_digit())
@@ -29,7 +38,7 @@ impl CalibrationValueReader {
         Self::try_join_two_digits(first_digit, second_digit)
     }
 
-    fn recover_from_str_v2(&self, s: &str) -> Result<i32, Box<dyn Error>> {
+    fn recover_from_str_v2(&self, s: &str) -> Result<i32, CalibrationValueError> {
         let first_digit = self.find_first_digit(s);
         let second_digit = self.find_last_digit(s);
         Self::try_join_two_digits(first_digit, second_digit)
@@ -104,7 +113,7 @@ impl Default for CalibrationValueReader {
     }
 }
 
-pub fn sum_calibration_values(input: &str) -> Result<i32, Box<dyn Error>> {
+pub fn sum_calibration_values(input: &str) -> Result<i32, CalibrationValueError> {
     let reader = CalibrationValueReader::default();
     input
         .lines()
@@ -115,7 +124,7 @@ pub fn sum_calibration_values(input: &str) -> Result<i32, Box<dyn Error>> {
         .sum()
 }
 
-pub fn sum_calibration_values_v2(input: &str) -> Result<i32, Box<dyn Error>> {
+pub fn sum_calibration_values_v2(input: &str) -> Result<i32, CalibrationValueError> {
     let reader = CalibrationValueReader::default();
     input
         .lines()
@@ -130,12 +139,12 @@ pub fn sum_calibration_values_v2(input: &str) -> Result<i32, Box<dyn Error>> {
 pub mod test {
     use super::*;
 
-    fn recover_from_str(value: &str) -> Result<i32, Box<dyn Error>> {
+    fn recover_from_str(value: &str) -> Result<i32, CalibrationValueError> {
         let reader = CalibrationValueReader::default();
         reader.recover_from_str(value)
     }
 
-    fn recover_from_str_v2(value: &str) -> Result<i32, Box<dyn Error>> {
+    fn recover_from_str_v2(value: &str) -> Result<i32, CalibrationValueError> {
         let reader = CalibrationValueReader::default();
         reader.recover_from_str_v2(value)
     }
@@ -236,5 +245,25 @@ pub mod test {
         let input = "7pqrstsixteen";
         let result = recover_from_str_v2(input).unwrap();
         assert_eq!(result, 76);
+    }
+
+    #[test]
+    fn test_calibration_value_parse_missing_digits() {
+        let input = "one";
+        let result = recover_from_str(input);
+        assert!(result.is_err());
+        if let Err(err) = result {
+            assert_eq!(err, CalibrationValueError::NoDigitsFound);
+        }
+    }
+
+    #[test]
+    fn test_calibration_value_parse_missing_digits_v2() {
+        let input = "twelve";
+        let result = recover_from_str_v2(input);
+        assert!(result.is_err());
+        if let Err(err) = result {
+            assert_eq!(err, CalibrationValueError::NoDigitsFound);
+        }
     }
 }

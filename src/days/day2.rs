@@ -1,12 +1,21 @@
 use crate::io::Source;
-use crate::snow_island::{Game, GameBag};
+use crate::snow_island::{Game, GameBag, GameParseError};
 use crate::{Solution, Solver};
 use log::debug;
-use std::error::Error;
+use thiserror::Error;
 
 #[derive(Debug)]
 pub struct GameSolver {
     bag: GameBag,
+}
+
+#[derive(Debug, Error)]
+pub enum GameSolverError {
+    #[error("IO error: {0}")]
+    IOError(#[from] std::io::Error),
+    //#[error("Game parse error: {0}")]
+    #[error(transparent)]
+    ParseError(#[from] GameParseError),
 }
 
 impl Default for GameSolver {
@@ -17,7 +26,8 @@ impl Default for GameSolver {
     }
 }
 impl Solver for GameSolver {
-    fn solve(&self, input: &Source) -> Result<Solution, Box<dyn Error>> {
+    type Err = GameSolverError;
+    fn solve(&self, input: &Source) -> Result<Solution, Self::Err> {
         let games = get_games(input)?;
         debug!("{} games loaded", games.len());
 
@@ -44,7 +54,7 @@ impl Solver for GameSolver {
     }
 }
 
-fn get_games(input: &Source) -> Result<Vec<Game>, Box<dyn Error>> {
+fn get_games(input: &Source) -> Result<Vec<Game>, GameSolverError> {
     let input = input.read_string()?;
     let mut games = Vec::new();
     for line in input.lines() {
@@ -59,7 +69,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_solve_part_1() -> Result<(), Box<dyn Error>> {
+    fn test_solve_part_1() -> Result<(), GameSolverError> {
         let input = Source::try_from("inputs/day-2.txt")?;
         let result = GameSolver::default().solve(&input)?;
         assert_eq!(result.part1(), 2085);
@@ -67,7 +77,7 @@ mod tests {
     }
 
     #[test]
-    fn test_solve_part_2() -> Result<(), Box<dyn Error>> {
+    fn test_solve_part_2() -> Result<(), GameSolverError> {
         let input = Source::try_from("inputs/day-2.txt")?;
         let result = GameSolver::default().solve(&input)?;
         assert_eq!(result.part2(), Some(79315));

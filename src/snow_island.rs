@@ -2,6 +2,7 @@ use std::cmp::max;
 use std::fmt;
 use std::fmt::{Display, Formatter};
 use std::str::FromStr;
+use thiserror::Error;
 
 #[derive(Debug)]
 pub struct Game {
@@ -29,17 +30,33 @@ impl Display for Game {
     }
 }
 
+#[derive(Debug, Error, PartialEq)]
+pub enum GameParseError {
+    #[error("Invalid input: missing colon")]
+    MissingColon,
+    #[error("Invalid input: missing 'Game '")]
+    MissingGamePrefix,
+    #[error("Invalid input: invalid game id: {0}")]
+    InvalidGameId(String),
+    #[error("Invalid input: missing space")]
+    MissingSpace,
+    #[error("Invalid input: invalid count: {0}")]
+    InvalidCount(String),
+    #[error("Invalid input: invalid color: {0}")]
+    InvalidColor(String),
+}
+
 impl FromStr for Game {
-    type Err = &'static str;
+    type Err = GameParseError;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let (game, results) = s.split_once(": ").ok_or("Invalid input: missing colon")?;
+        let (game, results) = s.split_once(": ").ok_or(GameParseError::MissingColon)?;
         if !game.starts_with("Game ") {
-            return Err("Invalid input: missing 'Game '");
+            return Err(GameParseError::MissingGamePrefix);
         }
         let id = game[5..]
             .parse::<i32>()
-            .map_err(|_| "Invalid input: invalid game id")?;
+            .map_err(|_| GameParseError::InvalidGameId(game[5..].to_string()))?;
         let results = results
             .split("; ")
             .map(|result| result.parse::<GrabResult>())
@@ -81,24 +98,22 @@ impl Display for GrabResult {
 }
 
 impl FromStr for GrabResult {
-    type Err = &'static str;
+    type Err = GameParseError;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         let mut blue = 0;
         let mut red = 0;
         let mut green = 0;
         for result in s.split(", ") {
-            let (count, color) = result
-                .split_once(' ')
-                .ok_or("Invalid input: missing space")?;
+            let (count, color) = result.split_once(' ').ok_or(GameParseError::MissingSpace)?;
             let count = count
                 .parse::<u32>()
-                .map_err(|_| "Invalid input: invalid count")?;
+                .map_err(|_| GameParseError::InvalidCount(count.to_string()))?;
             match color {
                 "blue" => blue = count,
                 "red" => red = count,
                 "green" => green = count,
-                _ => return Err("Invalid input: invalid color"),
+                _ => return Err(GameParseError::InvalidColor(color.to_string())),
             }
         }
         Ok(GrabResult { blue, red, green })

@@ -3,6 +3,7 @@ use crate::span::Span;
 use std::fmt::{Display, Formatter};
 use std::ops::Range;
 use std::str::FromStr;
+use thiserror::Error;
 
 #[derive(Debug, PartialEq)]
 pub struct EngineSchematic {
@@ -34,8 +35,14 @@ pub struct PositionedComponent {
     span: Range<usize>,
 }
 
+#[derive(Debug, Error, PartialEq)]
+pub enum EngineSchematicParseError {
+    #[error("This should not have happened")]
+    None,
+}
+
 impl FromStr for EngineSchematic {
-    type Err = &'static str;
+    type Err = EngineSchematicParseError;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         let mut lines = Vec::new();
@@ -207,7 +214,7 @@ impl EngineSchematic {
 }
 
 impl FromStr for SchematicLine {
-    type Err = &'static str;
+    type Err = EngineSchematicParseError;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         let mut components = Vec::new();

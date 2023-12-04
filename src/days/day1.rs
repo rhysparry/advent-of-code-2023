@@ -1,13 +1,23 @@
 use crate::io::Source;
-use crate::trebuchet::{sum_calibration_values, sum_calibration_values_v2};
+use crate::trebuchet::{sum_calibration_values, sum_calibration_values_v2, CalibrationValueError};
 use crate::{Solution, Solver};
-use std::error::Error;
+use thiserror::Error;
 
 #[derive(Debug, Default)]
 pub struct CalibrationSolver;
 
+#[derive(Debug, Error)]
+pub enum CalibrationSolverError {
+    #[error(transparent)]
+    CalibrationValueError(#[from] CalibrationValueError),
+    #[error("IO error: {0}")]
+    IOError(#[from] std::io::Error),
+}
+
 impl Solver for CalibrationSolver {
-    fn solve(&self, input: &Source) -> Result<Solution, Box<dyn Error>> {
+    type Err = CalibrationSolverError;
+
+    fn solve(&self, input: &Source) -> Result<Solution, Self::Err> {
         let input = input.read_string()?;
 
         Ok(Solution::new(
@@ -22,7 +32,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_solve_part_1() -> Result<(), Box<dyn Error>> {
+    fn test_solve_part_1() -> Result<(), CalibrationSolverError> {
         let input = Source::try_from("inputs/day-1.txt")?;
         let result = CalibrationSolver::default().solve(&input)?;
         assert_eq!(result.part1(), 55029);
@@ -30,7 +40,7 @@ mod tests {
     }
 
     #[test]
-    fn test_solve_part_2() -> Result<(), Box<dyn Error>> {
+    fn test_solve_part_2() -> Result<(), CalibrationSolverError> {
         let input = Source::try_from("inputs/day-1.txt")?;
         let result = CalibrationSolver::default().solve(&input)?;
         assert_eq!(result.part2(), Some(55686));

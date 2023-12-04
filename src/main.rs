@@ -1,9 +1,11 @@
 use advent_of_code_2023::days::{day1, day2, day3};
 use advent_of_code_2023::io::Source;
 use advent_of_code_2023::Solver;
+use anyhow::Context;
 use clap::Parser;
 use log::{info, Level};
 use std::ops::RangeInclusive;
+use thiserror::Error;
 
 fn source_value_parser(value: &str) -> Result<Source, String> {
     match Source::try_from(value) {
@@ -26,9 +28,11 @@ struct Cli {
     log_level: Level,
 }
 
-fn print(input: &Source) -> Result<(), Box<dyn std::error::Error>> {
+fn print(input: &Source) -> anyhow::Result<()> {
     info!("Reading input from {}", input);
-    let input = input.read_string()?;
+    let input = input
+        .read_string()
+        .with_context(|| format!("Failed to read input: {input}"))?;
     println!("{}", input);
     Ok(())
 }
@@ -51,16 +55,32 @@ fn day_in_range(value: &str) -> Result<u8, String> {
     }
 }
 
-fn main() -> Result<(), Box<dyn std::error::Error>> {
+#[derive(Debug, Error)]
+pub enum ApplicationError {
+    #[error("Invalid day: {0}")]
+    InvalidDay(u8),
+
+    #[error(transparent)]
+    Other(#[from] anyhow::Error),
+}
+
+fn main() -> Result<(), ApplicationError> {
     let cli = Cli::parse();
-    simple_logger::init_with_level(cli.log_level)?;
+    simple_logger::init_with_level(cli.log_level).context("Failed to initialize logger")?;
     match cli.day {
-        0 => print(&cli.input),
-        1 => day1::CalibrationSolver.run(&cli.input),
-        2 => day2::GameSolver::default().run(&cli.input),
-        3 => day3::GearRatioSolver.run(&cli.input),
-        _ => Err("Invalid day".into()),
-    }
+        0 => print(&cli.input)?,
+        1 => day1::CalibrationSolver
+            .run(&cli.input)
+            .with_context(|| "Day 1 failed")?,
+        2 => day2::GameSolver::default()
+            .run(&cli.input)
+            .with_context(|| "Day 2 failed")?,
+        3 => day3::GearRatioSolver
+            .run(&cli.input)
+            .with_context(|| "Day 3 failed")?,
+        _ => return Err(ApplicationError::InvalidDay(cli.day)),
+    };
+    Ok(())
 }
 
 #[cfg(test)]

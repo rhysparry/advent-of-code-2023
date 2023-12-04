@@ -1,14 +1,23 @@
-use crate::gondola_lift::EngineSchematic;
+use crate::gondola_lift::{EngineSchematic, EngineSchematicParseError};
 use crate::io::Source;
 use crate::{Solution, Solver};
 use log::info;
-use std::error::Error;
+use thiserror::Error;
 
 #[derive(Debug, Default)]
 pub struct GearRatioSolver;
 
+#[derive(Debug, Error)]
+pub enum GearRatioSolverError {
+    #[error("IO error: {0}")]
+    IOError(#[from] std::io::Error),
+    #[error(transparent)]
+    ParseError(#[from] EngineSchematicParseError),
+}
+
 impl Solver for GearRatioSolver {
-    fn solve(&self, input: &Source) -> Result<Solution, Box<dyn Error>> {
+    type Err = GearRatioSolverError;
+    fn solve(&self, input: &Source) -> Result<Solution, Self::Err> {
         let input = input.read_string()?;
         let schematic = input.parse::<EngineSchematic>()?;
 
