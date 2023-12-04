@@ -1,5 +1,5 @@
 use crate::io::Source;
-use crate::scratch_cards::{Card, CardParseError};
+use crate::scratch_cards::{CardParseError, CardSet};
 use crate::{Solution, Solver};
 use thiserror::Error;
 
@@ -20,13 +20,11 @@ impl Solver for ScratchCardSolver {
     fn solve(&self, input: &Source) -> Result<Solution, Self::Err> {
         let input = input.read_string()?;
 
-        let cards = input
-            .lines()
-            .map(|line| line.parse::<Card>())
-            .collect::<Result<Vec<_>, _>>()?;
+        let card_set = input.parse::<CardSet>()?;
 
-        Ok(Solution::partial(
-            cards.iter().map(|c| c.get_points()).sum::<u32>() as i32,
+        Ok(Solution::new(
+            card_set.get_points() as i32,
+            card_set.total_instances() as i32,
         ))
     }
 }
@@ -40,5 +38,12 @@ mod tests {
         let input = Source::try_from("inputs/day-4.txt").unwrap();
         let result = ScratchCardSolver::default().solve(&input).unwrap();
         assert_eq!(result.part1(), 15205);
+    }
+
+    #[test]
+    fn test_solve_part_2() {
+        let input = Source::try_from("inputs/day-4.txt").unwrap();
+        let result = ScratchCardSolver::default().solve(&input).unwrap();
+        assert_eq!(result.part2(), Some(6189740));
     }
 }
