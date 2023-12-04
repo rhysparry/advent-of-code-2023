@@ -10,6 +10,8 @@ pub mod snow_island;
 
 pub mod gondola_lift;
 
+pub mod scratch_cards;
+
 pub mod span;
 
 pub struct Solution {
@@ -56,4 +58,12 @@ pub trait Solver {
         println!("{}", solution);
         Ok(())
     }
+}
+
+pub fn error_free<T, E>(intermediate_results: Vec<Result<T, E>>) -> Result<Vec<T>, E> {
+    let mut results = Vec::new();
+    for result in intermediate_results {
+        results.push(result?);
+    }
+    Ok(results)
 }
