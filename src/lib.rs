@@ -1,3 +1,5 @@
+extern crate core;
+
 use std::fmt;
 use std::fmt::{Display, Formatter};
 
@@ -11,6 +13,8 @@ pub mod snow_island;
 pub mod gondola_lift;
 
 pub mod scratch_cards;
+
+pub mod almanac;
 
 pub mod span;
 
