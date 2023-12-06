@@ -1,9 +1,11 @@
+use std::cmp::{max, min};
 use std::ops::Range;
 
 pub trait Span {
     fn is_left_adjacent_to(&self, other: &Self) -> bool;
     fn is_right_adjacent_to(&self, other: &Self) -> bool;
     fn overlaps(&self, other: &Self) -> bool;
+    fn intersection(&self, other: &Self) -> Option<Self> where Self: Sized;
     fn is_adjacent_to(&self, other: &Self) -> bool {
         self.is_left_adjacent_to(other) || self.is_right_adjacent_to(other)
     }
@@ -14,7 +16,7 @@ pub trait Span {
 
 impl<T> Span for Range<T>
 where
-    T: PartialEq + PartialOrd,
+    T: Ord + PartialEq + PartialOrd + Copy,
 {
     fn is_left_adjacent_to(&self, other: &Self) -> bool {
         self.end == other.start
@@ -26,6 +28,14 @@ where
 
     fn overlaps(&self, other: &Self) -> bool {
         self.start < other.end && other.start < self.end
+    }
+
+    fn intersection(&self, other: &Self) -> Option<Self> {
+        if self.overlaps(other) {
+            Some(max(self.start, other.start)..min(self.end, other.end))
+        } else {
+            None
+        }
     }
 }
 

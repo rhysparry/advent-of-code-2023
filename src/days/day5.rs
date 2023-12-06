@@ -29,7 +29,13 @@ impl Solver for Day5Solver {
             .min()
             .ok_or(Day5SolverError::NoSeeds)?;
 
-        Ok(Solution::partial(lowest_location_number as i32))
+        let lowest_location_via_ranges = almanac.get_seed_location_ranges()
+            .into_iter()
+            .map(|location_range| location_range.start)
+            .min()
+            .ok_or(Day5SolverError::NoSeeds)?;
+
+        Ok(Solution::new(lowest_location_number as i32, lowest_location_via_ranges as i32))
     }
 }
 
@@ -42,5 +48,12 @@ mod tests {
         let input = Source::try_from("inputs/day-5.txt").unwrap();
         let result = Day5Solver::default().solve(&input).unwrap();
         assert_eq!(result.part1(), 389056265);
+    }
+
+    #[test]
+    fn test_solve_part_2() {
+        let input = Source::try_from("inputs/day-5.txt").unwrap();
+        let result = Day5Solver::default().solve(&input).unwrap();
+        assert_eq!(result.part2(), Some(487905974));
     }
 }
