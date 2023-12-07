@@ -40,14 +40,14 @@ mod tests {
     #[test]
     fn test_solve_part_1() {
         let input = Source::try_from("inputs/day-3.txt").unwrap();
-        let result = GearRatioSolver::default().solve(&input).unwrap();
+        let result = GearRatioSolver.solve(&input).unwrap();
         assert_eq!(result.part1(), 556367);
     }
 
     #[test]
     fn test_solve_part_2() {
         let input = Source::try_from("inputs/day-3.txt").unwrap();
-        let result = GearRatioSolver::default().solve(&input).unwrap();
+        let result = GearRatioSolver.solve(&input).unwrap();
         assert_eq!(result.part2(), Some(89471771));
     }
 }

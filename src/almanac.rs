@@ -220,11 +220,11 @@ impl Almanac {
             .collect()
     }
 
-    pub fn iter_all_seeds<'a>(&'a self) -> impl Iterator<Item = usize> + 'a {
+    pub fn iter_all_seeds(&self) -> impl Iterator<Item = usize> + '_ {
         self.seed_ranges.iter().flat_map(|range| range.clone())
     }
 
-    pub fn iter_all_seed_locations<'a>(&'a self) -> impl Iterator<Item = usize> + 'a {
+    pub fn iter_all_seed_locations(&self) -> impl Iterator<Item = usize> + '_ {
         self.iter_all_seeds()
             .map(|seed| self.seed_to_location(seed))
     }
@@ -404,7 +404,7 @@ mod tests {
         let input = Source::try_from("inputs/day-5-example.txt").unwrap();
         let input = input.read_string().unwrap();
         let result = Almanac::from_str(&input).unwrap();
-        assert!(result.seeds.len() > 0);
+        assert!(!result.seeds.is_empty());
     }
 
     #[test]

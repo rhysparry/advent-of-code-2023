@@ -34,7 +34,7 @@ mod tests {
     #[test]
     fn test_solve_part_1() -> Result<(), CalibrationSolverError> {
         let input = Source::try_from("inputs/day-1.txt")?;
-        let result = CalibrationSolver::default().solve(&input)?;
+        let result = CalibrationSolver.solve(&input)?;
         assert_eq!(result.part1(), 55029);
         Ok(())
     }
@@ -42,7 +42,7 @@ mod tests {
     #[test]
     fn test_solve_part_2() -> Result<(), CalibrationSolverError> {
         let input = Source::try_from("inputs/day-1.txt")?;
-        let result = CalibrationSolver::default().solve(&input)?;
+        let result = CalibrationSolver.solve(&input)?;
         assert_eq!(result.part2(), Some(55686));
         Ok(())
     }

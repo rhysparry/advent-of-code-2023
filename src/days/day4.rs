@@ -36,14 +36,14 @@ mod tests {
     #[test]
     fn test_solve_part_1() {
         let input = Source::try_from("inputs/day-4.txt").unwrap();
-        let result = ScratchCardSolver::default().solve(&input).unwrap();
+        let result = ScratchCardSolver.solve(&input).unwrap();
         assert_eq!(result.part1(), 15205);
     }
 
     #[test]
     fn test_solve_part_2() {
         let input = Source::try_from("inputs/day-4.txt").unwrap();
-        let result = ScratchCardSolver::default().solve(&input).unwrap();
+        let result = ScratchCardSolver.solve(&input).unwrap();
         assert_eq!(result.part2(), Some(6189740));
     }
 }

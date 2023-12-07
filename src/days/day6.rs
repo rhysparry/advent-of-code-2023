@@ -37,14 +37,14 @@ mod tests {
     #[test]
     fn test_solve_part_1() {
         let input = Source::try_from("inputs/day-6.txt").unwrap();
-        let result = RaceSolver::default().solve(&input).unwrap();
+        let result = RaceSolver.solve(&input).unwrap();
         assert_eq!(result.part1(), 2374848);
     }
 
     #[test]
     fn test_solve_part_2() {
         let input = Source::try_from("inputs/day-6.txt").unwrap();
-        let result = RaceSolver::default().solve(&input).unwrap();
+        let result = RaceSolver.solve(&input).unwrap();
         assert_eq!(result.part2(), Some(39132886));
     }
 }

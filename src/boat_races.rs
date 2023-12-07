@@ -73,7 +73,7 @@ impl FromStr for RaceRecords {
 
         let records = times
             .into_iter()
-            .zip(distances.into_iter())
+            .zip(distances)
             .map(|(time, distance)| RaceRecord { time, distance })
             .collect();
         Ok(RaceRecords { records })
