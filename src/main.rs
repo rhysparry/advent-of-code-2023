@@ -1,4 +1,4 @@
-use advent_of_code_2023::days::{day1, day2, day3, day4, day5};
+use advent_of_code_2023::days::{day1, day2, day3, day4, day5, day6};
 use advent_of_code_2023::io::Source;
 use advent_of_code_2023::Solver;
 use anyhow::Context;
@@ -37,7 +37,7 @@ fn print(input: &Source) -> anyhow::Result<()> {
     Ok(())
 }
 
-const DAY_RANGE: RangeInclusive<usize> = 0..=5;
+const DAY_RANGE: RangeInclusive<usize> = 0..=6;
 
 fn day_in_range(value: &str) -> Result<u8, String> {
     let day: usize = value
@@ -84,6 +84,9 @@ fn main() -> Result<(), ApplicationError> {
         5 => day5::Day5Solver
             .run(&cli.input)
             .with_context(|| "Day 5 failed")?,
+        6 => day6::RaceSolver
+            .run(&cli.input)
+            .with_context(|| "Day 6 failed")?,
         _ => return Err(ApplicationError::InvalidDay(cli.day)),
     };
     Ok(())

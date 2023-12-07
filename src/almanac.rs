@@ -1,7 +1,7 @@
+use log::{debug, trace};
 use std::cmp::min;
 use std::ops::Range;
 use std::str::FromStr;
-use log::{debug, trace};
 use thiserror::Error;
 
 pub struct Almanac {
@@ -60,7 +60,6 @@ pub enum AlmanacParseError {
 
 impl FromStr for Almanac {
     type Err = AlmanacParseError;
-
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         let mut lines = s.lines();
@@ -221,13 +220,11 @@ impl Almanac {
             .collect()
     }
 
-    pub fn iter_all_seeds<'a>(&'a self) -> impl Iterator<Item=usize> + 'a {
-        self.seed_ranges
-            .iter()
-            .flat_map(|range| range.clone())
+    pub fn iter_all_seeds<'a>(&'a self) -> impl Iterator<Item = usize> + 'a {
+        self.seed_ranges.iter().flat_map(|range| range.clone())
     }
 
-    pub fn iter_all_seed_locations<'a>(&'a self) -> impl Iterator<Item=usize> + 'a {
+    pub fn iter_all_seed_locations<'a>(&'a self) -> impl Iterator<Item = usize> + 'a {
         self.iter_all_seeds()
             .map(|seed| self.seed_to_location(seed))
     }
@@ -246,7 +243,7 @@ impl AlmanacMap {
         AlmanacMap { values }
     }
     fn from_lines<'a>(
-        lines: &mut impl Iterator<Item=&'a str>,
+        lines: &mut impl Iterator<Item = &'a str>,
         map_prefix: &str,
     ) -> Result<Self, AlmanacParseError> {
         let header_line = lines
@@ -278,9 +275,9 @@ impl AlmanacMap {
     }
 
     fn find_next_range_map(&self, value: usize) -> Option<&RangeMap> {
-        self.values
-            .iter()
-            .find(|range_map| range_map.source_start >= value || range_map.range_in().contains(&value))
+        self.values.iter().find(|range_map| {
+            range_map.source_start >= value || range_map.range_in().contains(&value)
+        })
     }
 
     pub fn map_ranges(&self, range: &Range<usize>) -> Vec<Range<usize>> {
@@ -455,7 +452,8 @@ mod tests {
     #[test]
     fn test_example_almanac_seed_ranges_lowest_location() {
         let almanac = get_example_almanac();
-        let lowest_location = almanac.seed_ranges
+        let lowest_location = almanac
+            .seed_ranges
             .iter()
             .flat_map(|seed_range| almanac.seed_range_to_location_ranges(seed_range))
             .map(|location_range| location_range.start)

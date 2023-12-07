@@ -25,9 +25,9 @@ impl Default for GameSolver {
         }
     }
 }
-impl Solver for GameSolver {
+impl Solver<i32> for GameSolver {
     type Err = GameSolverError;
-    fn solve(&self, input: &Source) -> Result<Solution, Self::Err> {
+    fn solve(&self, input: &Source) -> Result<Solution<i32>, Self::Err> {
         let games = get_games(input)?;
         debug!("{} games loaded", games.len());
 

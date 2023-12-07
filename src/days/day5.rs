@@ -16,10 +16,10 @@ pub enum Day5SolverError {
     NoSeeds,
 }
 
-impl Solver for Day5Solver {
+impl Solver<usize> for Day5Solver {
     type Err = Day5SolverError;
 
-    fn solve(&self, input: &Source) -> Result<Solution, Self::Err> {
+    fn solve(&self, input: &Source) -> Result<Solution<usize>, Self::Err> {
         let input = input.read_string()?;
         let almanac = input.parse::<Almanac>()?;
 
@@ -29,13 +29,17 @@ impl Solver for Day5Solver {
             .min()
             .ok_or(Day5SolverError::NoSeeds)?;
 
-        let lowest_location_via_ranges = almanac.get_seed_location_ranges()
+        let lowest_location_via_ranges = almanac
+            .get_seed_location_ranges()
             .into_iter()
             .map(|location_range| location_range.start)
             .min()
             .ok_or(Day5SolverError::NoSeeds)?;
 
-        Ok(Solution::new(lowest_location_number as i32, lowest_location_via_ranges as i32))
+        Ok(Solution::new(
+            lowest_location_number,
+            lowest_location_via_ranges,
+        ))
     }
 }
 

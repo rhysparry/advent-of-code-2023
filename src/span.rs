@@ -5,7 +5,9 @@ pub trait Span {
     fn is_left_adjacent_to(&self, other: &Self) -> bool;
     fn is_right_adjacent_to(&self, other: &Self) -> bool;
     fn overlaps(&self, other: &Self) -> bool;
-    fn intersection(&self, other: &Self) -> Option<Self> where Self: Sized;
+    fn intersection(&self, other: &Self) -> Option<Self>
+    where
+        Self: Sized;
     fn is_adjacent_to(&self, other: &Self) -> bool {
         self.is_left_adjacent_to(other) || self.is_right_adjacent_to(other)
     }

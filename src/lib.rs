@@ -16,34 +16,36 @@ pub mod scratch_cards;
 
 pub mod almanac;
 
+pub mod boat_races;
+
 pub mod span;
 
-pub struct Solution {
-    part1: i32,
-    part2: Option<i32>,
+pub struct Solution<T: Display> {
+    part1: T,
+    part2: Option<T>,
 }
 
-impl Solution {
-    pub fn new(part1: i32, part2: i32) -> Self {
+impl<T: Copy + Display> Solution<T> {
+    pub fn new(part1: T, part2: T) -> Self {
         Solution {
             part1,
             part2: Some(part2),
         }
     }
 
-    pub fn partial(part1: i32) -> Self {
+    pub fn partial(part1: T) -> Self {
         Solution { part1, part2: None }
     }
 
-    pub fn part1(&self) -> i32 {
+    pub fn part1(&self) -> T {
         self.part1
     }
-    pub fn part2(&self) -> Option<i32> {
+    pub fn part2(&self) -> Option<T> {
         self.part2
     }
 }
 
-impl Display for Solution {
+impl<T: Copy + Display> Display for Solution<T> {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         write!(f, "part 1: {}", self.part1)?;
         if let Some(part2) = self.part2 {
@@ -53,9 +55,9 @@ impl Display for Solution {
     }
 }
 
-pub trait Solver {
+pub trait Solver<T: Copy + Display> {
     type Err;
-    fn solve(&self, input: &io::Source) -> Result<Solution, Self::Err>;
+    fn solve(&self, input: &io::Source) -> Result<Solution<T>, Self::Err>;
 
     fn run(&self, input: &io::Source) -> Result<(), Self::Err> {
         let solution = self.solve(input)?;

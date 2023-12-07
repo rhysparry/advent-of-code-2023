@@ -14,10 +14,10 @@ pub enum CalibrationSolverError {
     IOError(#[from] std::io::Error),
 }
 
-impl Solver for CalibrationSolver {
+impl Solver<i32> for CalibrationSolver {
     type Err = CalibrationSolverError;
 
-    fn solve(&self, input: &Source) -> Result<Solution, Self::Err> {
+    fn solve(&self, input: &Source) -> Result<Solution<i32>, Self::Err> {
         let input = input.read_string()?;
 
         Ok(Solution::new(

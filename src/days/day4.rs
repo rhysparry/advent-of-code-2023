@@ -14,17 +14,17 @@ pub enum ScratchCardSolverError {
     CardParseError(#[from] CardParseError),
 }
 
-impl Solver for ScratchCardSolver {
+impl Solver<u32> for ScratchCardSolver {
     type Err = ScratchCardSolverError;
 
-    fn solve(&self, input: &Source) -> Result<Solution, Self::Err> {
+    fn solve(&self, input: &Source) -> Result<Solution<u32>, Self::Err> {
         let input = input.read_string()?;
 
         let card_set = input.parse::<CardSet>()?;
 
         Ok(Solution::new(
-            card_set.get_points() as i32,
-            card_set.total_instances() as i32,
+            card_set.get_points(),
+            card_set.total_instances(),
         ))
     }
 }

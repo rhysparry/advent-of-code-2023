@@ -15,9 +15,9 @@ pub enum GearRatioSolverError {
     ParseError(#[from] EngineSchematicParseError),
 }
 
-impl Solver for GearRatioSolver {
+impl Solver<i32> for GearRatioSolver {
     type Err = GearRatioSolverError;
-    fn solve(&self, input: &Source) -> Result<Solution, Self::Err> {
+    fn solve(&self, input: &Source) -> Result<Solution<i32>, Self::Err> {
         let input = input.read_string()?;
         let schematic = input.parse::<EngineSchematic>()?;
 
