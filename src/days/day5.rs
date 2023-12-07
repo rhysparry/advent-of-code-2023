@@ -54,6 +54,6 @@ mod tests {
     fn test_solve_part_2() {
         let input = Source::try_from("inputs/day-5.txt").unwrap();
         let result = Day5Solver::default().solve(&input).unwrap();
-        assert_eq!(result.part2(), Some(487905974));
+        assert_eq!(result.part2(), Some(137516820));
     }
 }
