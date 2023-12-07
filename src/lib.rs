@@ -18,6 +18,8 @@ pub mod almanac;
 
 pub mod boat_races;
 
+pub mod camel_cards;
+
 pub mod span;
 
 pub struct Solution<T: Display> {
