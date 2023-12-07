@@ -81,7 +81,7 @@ fn main() -> Result<(), ApplicationError> {
         4 => day4::ScratchCardSolver
             .run(&cli.input)
             .with_context(|| "Day 4 failed")?,
-        5 => day5::Day5Solver
+        5 => day5::SeedSolver
             .run(&cli.input)
             .with_context(|| "Day 5 failed")?,
         6 => day6::RaceSolver
