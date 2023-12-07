@@ -1,7 +1,7 @@
-use thiserror::Error;
 use crate::boat_races::{RaceRecordParseError, RaceRecords};
 use crate::io::Source;
 use crate::{Solution, Solver};
+use thiserror::Error;
 
 #[derive(Debug, Default)]
 pub struct RaceSolver;
@@ -14,13 +14,19 @@ pub enum RaceSolverError {
     ParseError(#[from] RaceRecordParseError),
 }
 
-impl Solver<usize> for RaceSolver {
+impl Solver<u64> for RaceSolver {
     type Err = RaceSolverError;
 
-    fn solve(&self, input: &Source) -> Result<Solution<usize>, Self::Err> {
+    fn solve(&self, input: &Source) -> Result<Solution<u64>, Self::Err> {
         let input = input.read_string()?;
         let race_records = input.parse::<RaceRecords>()?;
-        Ok(Solution::partial(race_records.num_ways_to_beat_record()))
+
+        let fixed_input = RaceRecords::patch_bad_kerning(&input);
+        let fixed_race_records = fixed_input.parse::<RaceRecords>()?;
+        Ok(Solution::new(
+            race_records.num_ways_to_beat_record(),
+            fixed_race_records.num_ways_to_beat_record(),
+        ))
     }
 }
 
@@ -33,5 +39,12 @@ mod tests {
         let input = Source::try_from("inputs/day-6.txt").unwrap();
         let result = RaceSolver::default().solve(&input).unwrap();
         assert_eq!(result.part1(), 2374848);
+    }
+
+    #[test]
+    fn test_solve_part_2() {
+        let input = Source::try_from("inputs/day-6.txt").unwrap();
+        let result = RaceSolver::default().solve(&input).unwrap();
+        assert_eq!(result.part2(), Some(39132886));
     }
 }

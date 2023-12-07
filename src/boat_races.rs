@@ -9,8 +9,8 @@ pub struct RaceRecords {
 
 #[derive(Debug)]
 pub struct RaceRecord {
-    time: u32,
-    distance: u32,
+    time: u64,
+    distance: u64,
 }
 
 #[derive(Debug, Error)]
@@ -45,7 +45,7 @@ impl FromStr for RaceRecords {
         let times = times[6..]
             .split_whitespace()
             .map(|time| {
-                time.parse::<u32>()
+                time.parse::<u64>()
                     .map_err(|_| RaceRecordParseError::InvalidTime(time.to_string()))
             })
             .collect::<Result<Vec<_>, _>>()?;
@@ -59,7 +59,7 @@ impl FromStr for RaceRecords {
             .split_whitespace()
             .map(|distance| {
                 distance
-                    .parse::<u32>()
+                    .parse::<u64>()
                     .map_err(|_| RaceRecordParseError::InvalidDistance(distance.to_string()))
             })
             .collect::<Result<Vec<_>, _>>()?;
@@ -81,11 +81,11 @@ impl FromStr for RaceRecords {
 }
 
 impl RaceRecord {
-    pub fn time(&self) -> u32 {
+    pub fn time(&self) -> u64 {
         self.time
     }
 
-    pub fn distance(&self) -> u32 {
+    pub fn distance(&self) -> u64 {
         self.distance
     }
 
@@ -93,10 +93,7 @@ impl RaceRecord {
         let time = self.time as f64;
         let distance = self.distance as f64;
         let sq = (time.powi(2) - 4.0 * distance).sqrt();
-        let (a, b) = (
-            (self.time as f64 + sq) / 2.0,
-            (self.time as f64 - sq) / 2.0,
-        );
+        let (a, b) = ((self.time as f64 + sq) / 2.0, (self.time as f64 - sq) / 2.0);
 
         if a > b {
             (b, a)
@@ -105,10 +102,10 @@ impl RaceRecord {
         }
     }
 
-    pub fn get_winning_hold_times(&self) -> Range<u32> {
+    pub fn get_winning_hold_times(&self) -> Range<u64> {
         let (hold1, hold2) = self.get_hold_times();
-        let hold1 = self.bump_to_winner(hold1.ceil() as u32);
-        let hold2 = self.bump_to_loser(hold2.floor() as u32);
+        let hold1 = self.bump_to_winner(hold1.ceil() as u64);
+        let hold2 = self.bump_to_loser(hold2.floor() as u64);
         if hold1 > hold2 {
             hold2..hold1
         } else {
@@ -116,21 +113,21 @@ impl RaceRecord {
         }
     }
 
-    pub fn num_ways_to_beat_record(&self) -> usize {
+    pub fn num_ways_to_beat_record(&self) -> u64 {
         let winning_hold_times = self.get_winning_hold_times();
-        winning_hold_times.len()
+        winning_hold_times.end - winning_hold_times.start
     }
 
-    fn distance_covered(&self, hold_duration: u32) -> u32 {
+    fn distance_covered(&self, hold_duration: u64) -> u64 {
         (self.time - hold_duration) * hold_duration
     }
 
-    fn is_winner(&self, hold_duration: u32) -> bool {
+    fn is_winner(&self, hold_duration: u64) -> bool {
         let distance_covered = self.distance_covered(hold_duration);
         distance_covered > self.distance
     }
 
-    fn bump_to_winner(&self, hold_duration: u32) -> u32 {
+    fn bump_to_winner(&self, hold_duration: u64) -> u64 {
         if self.is_winner(hold_duration) {
             hold_duration
         } else {
@@ -138,7 +135,7 @@ impl RaceRecord {
         }
     }
 
-    fn bump_to_loser(&self, hold_duration: u32) -> u32 {
+    fn bump_to_loser(&self, hold_duration: u64) -> u64 {
         if self.is_winner(hold_duration) {
             hold_duration + 1
         } else {
@@ -148,11 +145,28 @@ impl RaceRecord {
 }
 
 impl RaceRecords {
-    pub fn num_ways_to_beat_record(&self) -> usize {
+    pub fn num_ways_to_beat_record(&self) -> u64 {
         self.records
             .iter()
             .map(|record| record.num_ways_to_beat_record())
             .product()
+    }
+
+    pub fn patch_bad_kerning(s: &str) -> String {
+        s.lines()
+            .filter_map(|l| l.split_once(": "))
+            .map(|(k, v)| {
+                (
+                    k,
+                    v.split_whitespace()
+                        .collect::<Vec<_>>()
+                        .join("")
+                        .to_string(),
+                )
+            })
+            .map(|(k, v)| format!("{}: {}", k, v))
+            .collect::<Vec<_>>()
+            .join("\n")
     }
 }
 
@@ -165,11 +179,24 @@ mod tests {
     fn get_example_records() -> RaceRecords {
         RaceRecords {
             records: vec![
-                RaceRecord { time: 7, distance: 9 },
-                RaceRecord { time: 15, distance: 40 },
-                RaceRecord { time: 30, distance: 200 },
+                RaceRecord {
+                    time: 7,
+                    distance: 9,
+                },
+                RaceRecord {
+                    time: 15,
+                    distance: 40,
+                },
+                RaceRecord {
+                    time: 30,
+                    distance: 200,
+                },
             ],
         }
+    }
+
+    fn len(range: &Range<u64>) -> u64 {
+        range.end - range.start
     }
 
     #[test]
@@ -192,7 +219,7 @@ mod tests {
         };
 
         let hold_times = example.get_winning_hold_times();
-        assert_eq!(hold_times.len(), 4);
+        assert_eq!(len(&hold_times), 4);
         assert_eq!(hold_times, 2..6)
     }
 
@@ -204,7 +231,7 @@ mod tests {
         };
 
         let hold_times = example.get_winning_hold_times();
-        assert_eq!(hold_times.len(), 8);
+        assert_eq!(len(&hold_times), 8);
         assert_eq!(hold_times, 4..12)
     }
 
@@ -216,7 +243,7 @@ mod tests {
         };
 
         let hold_times = example.get_winning_hold_times();
-        assert_eq!(hold_times.len(), 9);
+        assert_eq!(len(&hold_times), 9);
         assert_eq!(hold_times, 11..20)
     }
 
