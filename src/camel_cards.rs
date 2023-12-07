@@ -10,10 +10,12 @@ pub struct Hand {
     cards: Vec<Card>,
     hand_type: HandType,
     bid: u64,
+    jokers_wild: bool,
 }
 
 #[derive(Debug, PartialOrd, PartialEq, Ord, Eq, Hash)]
 pub enum Card {
+    Joker,
     Two,
     Three,
     Four,
@@ -130,10 +132,11 @@ impl Hand {
             cards,
             hand_type,
             bid,
+            jokers_wild: false,
         })
     }
 
-    fn get_hand_type(cards: &Vec<Card>) -> Result<HandType, HandParseError> {
+    fn get_hand_type(cards: &[Card]) -> Result<HandType, HandParseError> {
         if cards.len() < 5 {
             return Err(HandParseError::InsufficientCards(cards.len()));
         }
@@ -164,11 +167,80 @@ impl Hand {
             _ => unreachable!(),
         }
     }
+
+    fn get_hand_type_jokers_wild(cards: &[Card]) -> HandType {
+        let total_count = cards.iter().collect::<Counter<_>>();
+        let num_jokers = total_count.get(&Card::Joker).unwrap_or(&0);
+        if *num_jokers == 0 {
+            return Hand::get_hand_type(cards).unwrap();
+        } else if *num_jokers >= 4 {
+            return HandType::FiveOfAKind;
+        }
+
+        let counts_no_jokers = cards
+            .iter()
+            .filter(|&card| card != &Card::Joker)
+            .collect::<Counter<_>>();
+        let max_count = counts_no_jokers.values().max().unwrap();
+        let starter_type = match max_count {
+            1 => HandType::HighCard,
+            2 => {
+                if counts_no_jokers.values().filter(|&&c| c == 2).count() == 2 {
+                    HandType::TwoPair
+                } else {
+                    HandType::OnePair
+                }
+            }
+            3 => HandType::ThreeOfAKind,
+            4 => HandType::FourOfAKind,
+            _ => unreachable!("There can't be more than 4 of a kind if there is a joker"),
+        };
+
+        match (&starter_type, num_jokers) {
+            (HandType::HighCard, 1) => HandType::OnePair,
+            (HandType::HighCard, 2) => HandType::ThreeOfAKind,
+            (HandType::HighCard, 3) => HandType::FourOfAKind,
+            (HandType::OnePair, 1) => HandType::ThreeOfAKind,
+            (HandType::OnePair, 2) => HandType::FourOfAKind,
+            (HandType::OnePair, 3) => HandType::FiveOfAKind,
+            (HandType::TwoPair, 1) => HandType::FullHouse,
+            (HandType::ThreeOfAKind, 1) => HandType::FourOfAKind,
+            (HandType::ThreeOfAKind, 2) => HandType::FiveOfAKind,
+            (HandType::FourOfAKind, 1) => HandType::FiveOfAKind,
+            _ => unreachable!(
+                "Unexpected combination of jokers: {:?} and starter type: {:?}",
+                num_jokers, starter_type
+            ),
+        }
+    }
+
+    pub fn jokers_wild(self) -> Self {
+        if self.jokers_wild {
+            return self;
+        }
+        let cards = self
+            .cards
+            .into_iter()
+            .map(|card| match card {
+                Card::Jack => Card::Joker,
+                _ => card,
+            })
+            .collect::<Vec<_>>();
+        let hand_type = Self::get_hand_type_jokers_wild(&cards);
+
+        Hand {
+            cards,
+            hand_type,
+            bid: self.bid,
+            jokers_wild: true,
+        }
+    }
 }
 
 impl Display for Card {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         match self {
+            Card::Joker => write!(f, "J"),
             Card::Two => write!(f, "2"),
             Card::Three => write!(f, "3"),
             Card::Four => write!(f, "4"),
@@ -189,12 +261,16 @@ impl Display for Card {
 #[derive(Debug)]
 pub struct Hands {
     hands: Vec<Hand>,
+    jokers_wild: bool,
 }
 
 impl Hands {
     pub fn new(mut hands: Vec<Hand>) -> Self {
         hands.sort();
-        Self { hands }
+        Self {
+            hands,
+            jokers_wild: false,
+        }
     }
 
     pub fn get_total_winnings(&self) -> u64 {
@@ -203,6 +279,22 @@ impl Hands {
             .enumerate()
             .map(|(i, hand)| hand.bid * (i + 1) as u64)
             .sum()
+    }
+
+    pub fn jokers_wild(self) -> Self {
+        if self.jokers_wild {
+            return self;
+        }
+        let mut hands = self
+            .hands
+            .into_iter()
+            .map(|hand| hand.jokers_wild())
+            .collect::<Vec<_>>();
+        hands.sort();
+        Self {
+            hands,
+            jokers_wild: true,
+        }
     }
 }
 
@@ -262,5 +354,14 @@ mod tests {
         let hands = Hands::new(hands);
         let total_winnings = hands.get_total_winnings();
         assert_eq!(total_winnings, 6440);
+    }
+
+    #[test]
+    fn test_example_hand_total_winnings_jokers_wild() {
+        let hands = get_example_hands();
+        let hands = Hands::new(hands);
+        let hands = hands.jokers_wild();
+        let total_winnings = hands.get_total_winnings();
+        assert_eq!(total_winnings, 5905);
     }
 }
