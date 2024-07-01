@@ -11,7 +11,7 @@ license = "MIT"
 [dependencies]
 anyhow = "1.0.86"
 clap = { version = "4.5.8", features = ["derive"] }
-counter = "0.5.7"
+counter = "0.6.0"
 log = "0.4.21"
 simple_logger = "5.0.0"
 thiserror = "1.0.61"
