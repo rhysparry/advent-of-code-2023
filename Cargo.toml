@@ -14,4 +14,4 @@ clap = { version = "4.5.31", features = ["derive"] }
 counter = "0.6.0"
 log = "0.4.26"
 simple_logger = "5.0.0"
-thiserror = "2.0.11"
+thiserror = "2.0.12"
