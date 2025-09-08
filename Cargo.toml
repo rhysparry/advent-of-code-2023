@@ -12,6 +12,6 @@ license = "MIT"
 anyhow = "1.0.99"
 clap = { version = "4.5.47", features = ["derive"] }
 counter = "0.7.0"
-log = "0.4.27"
+log = "0.4.28"
 simple_logger = "5.0.0"
 thiserror = "2.0.16"
