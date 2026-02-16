@@ -10,7 +10,7 @@ license = "MIT"
 
 [dependencies]
 anyhow = "1.0.101"
-clap = { version = "4.5.57", features = ["derive"] }
+clap = { version = "4.5.58", features = ["derive"] }
 counter = "0.7.0"
 log = "0.4.29"
 simple_logger = "5.1.0"
